@@ -1,4 +1,4 @@
-const { Builder, By } = require('selenium-webdriver');
+const { Builder, By, until } = require('selenium-webdriver');
 
 const express = require('express');
 
@@ -103,6 +103,11 @@ app.post('/', async (req, res) => {
         first_name, last_name, username, password,
         application_centre, service_type, applicant_type, card
     } = req.body;
+
+    first_name = "Hafiz Muhammad"
+    last_name = "Ahmed"
+    username = "hafizmuhammada57@gmail.com"
+    password = "hafizahmed"
 
     let driver = await new Builder().forBrowser('chrome').build();
     await driver.manage().window().maximize();
@@ -234,13 +239,9 @@ app.post('/', async (req, res) => {
         }
         if (datePicked) {
             console.log("Date picked successfully!");
-
-            try {
-                await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[8]/div/select")).click()
-            } catch (error) {
-                console.log(error)
-            }
-
+            const appointmentTypeLocator = By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[8]/div/select");
+            const appointmentTypeElement = await driver.wait(until.elementLocated(appointmentTypeLocator), 60000);
+            await appointmentTypeElement.click();
             try {
                 await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[8]/div/select/option[2]")).click()
             } catch (error) {
@@ -261,6 +262,7 @@ app.post('/', async (req, res) => {
 
     } finally {
         console.log("End");
+        await driver.close()
     }
 
     res.send("Appointment booked successfully.");
