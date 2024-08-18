@@ -1,4 +1,4 @@
-const { Builder ,By} = require('selenium-webdriver');
+const { Builder, By, until } = require('selenium-webdriver');
 
 const express = require('express');
 
@@ -28,7 +28,7 @@ const refreshIfNeeded = async (driver) => {
     let title = await driver.getTitle();
     let bodyElements = await driver.findElements(By.tagName('body'));
     const includes = titles.includes(title)
-    if ( includes) {
+    if (includes) {
         console.log("Error detected in title. Refreshing...");
         await driver.navigate().refresh();
     } else {
@@ -51,10 +51,10 @@ const solveCaptcha = async (captchaElement) => {
     });
 
     return (result[0]);
-    };
+};
 
 const solveRecaptcha = async (url) => {
-    
+
     const token = await nopecha.solveToken({
         type: 'recaptcha2',
         sitekey: '6LcQb8klAAAAAHDDKtB3PaB6gvbh-ej4qa8BRKV9',
@@ -104,7 +104,13 @@ app.post('/', async (req, res) => {
         application_centre, service_type, applicant_type, card
     } = req.body;
 
+    first_name = "Hafiz Muhammad"
+    last_name = "Ahmed"
+    username = "hafizmuhammada57@gmail.com"
+    password = "hafizahmed"
+
     let driver = await new Builder().forBrowser('chrome').build();
+    await driver.manage().window().maximize();
     try {
         await driver.get('https://blsitalypakistan.com/account/login');
         await refreshIfNeeded(driver);
@@ -132,35 +138,35 @@ app.post('/', async (req, res) => {
         console.log("Login successful");
         await refreshIfNeeded(driver);
         await driver.findElement(By.xpath("/html/body/div[5]/div/div/div[1]/div/ul/li[4]/a")).click();
-        
+
         //await driver.findElement(By.xpath("/html/body/div[6]/a/img")).click();
         // Select application centre based on user input
         switch (application_centre) {
             case 'Islamabad':
                 
-                await driver.findElement(By.xpath("/html/body/div[13]/div/div/div[2]/div/form/div[1]/select/option[2]")).click();
-                await driver.findElement( By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[2]/select/option[9]")).click();
+                await driver.findElement(By.xpath("/html/body/div[13]/div/div/div[2]/div/form/div[1]/select/option[7]")).click();
+                await driver.findElement( By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[2]/select/option[7]")).click();
                 break;
             case 'Lahore':
                 await driver.findElement(By.xpath("/html/body/div[13]/div/div/div[2]/div/form/div[1]/select/option[7]")).click();
-                
+
                 await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[2]/select/option[7]")).click();
                 break;
             case 'Faisalabad':
                 await driver.findElement(By.xpath("/html/body/div[13]/div/div/div[2]/div/form/div[1]/select/option[5]")).click();
-                
+
                 await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[2]/select/option[4]")).click();
                 break;
             case 'Multan':
-                await driver.findElement(By.xpath ("/html/body/div[13]/div/div/div[2]/div/form/div[1]/select/option[6]")).click();
-                
-                await driver.findElement(By.xpath ("/html/body/div[11]/div/div/div[2]/div/form/div[2]/select/option[4]")).click();
+                await driver.findElement(By.xpath("/html/body/div[13]/div/div/div[2]/div/form/div[1]/select/option[6]")).click();
+
+                await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[2]/select/option[4]")).click();
                 break;
         }
 
         await refreshIfNeeded(driver);
-        
-        await driver.findElement(By.xpath( "/html/body/div[11]/div/div/div[2]/div/form/div[3]/select/option[2]")).click();
+
+        await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[3]/select/option[2]")).click();
         await refreshIfNeeded(driver);
 
         console.log("Solving Captcha");
@@ -174,13 +180,13 @@ app.post('/', async (req, res) => {
                 let captchaCode = await solveCaptcha(captchaElement);
                 await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[5]/input")).sendKeys(captchaCode);
 
-                await driver.findElement(By.name ("valAppointmentDate")).click();
+                await driver.findElement(By.name("valAppointmentDate")).click();
                 await refreshIfNeeded(driver);
                 let dateElements = await driver.findElements(By.xpath("//td[contains(@class, 'day')]"));
                 for (let dateElement of dateElements) {
                     await refreshIfNeeded(driver);  // Assuming refreshIfNeeded is defined elsewhere
                     let classes = await dateElement.getAttribute("class");
-        
+
                     if (!classes.includes("disabled")) {
                         await dateElement.click();
                         console.log("Available date clicked");
@@ -189,13 +195,12 @@ app.post('/', async (req, res) => {
                         break;  // Exit the loop once a date is clicked
                     }
                 }
-                
-                if(boom){
+
+                if (boom) {
                     console.log(`Date picking failed: . Retrying...`);
                     driver.navigate().refresh();
                 }
-            } catch 
-            {
+            } catch {
                 console.log(`Failed due to an error:. Retrying...`);
                 driver.navigate().refresh();
                
@@ -215,48 +220,60 @@ app.post('/', async (req, res) => {
                             await driver.findElement(By.xpath("//input[@placeholder='Enter Email']")).sendKeys(username);
                             await driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys(password);
 
-                            let captchaElement = await driver.findElement(By.xpath("/html/body/div[6]/div/div/div/div/div[2]/form/div[5]/img"));
-                            console.log("Solving captcha...");
-                            let captchaCode = await solveCaptcha(captchaElement);
-                            await driver.findElement(By.xpath("/html/body/div[6]/div/div/div/div/div[2]/form/div[6]/input")).sendKeys(captchaCode);
-                            await driver.findElement(By.xpath("/html/body/div[6]/div/div/div/div/div[2]/form/div[8]/button")).click();
+                        }
+                        await driver.findElement(By.xpath("//input[@placeholder='Enter Email']")).sendKeys(username);
+                        await driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys(password);
 
-                            let currentUrl = await driver.getCurrentUrl();
-                            if (currentUrl === 'https://blsitalypakistan.com/account/account_details') {
+                        let captchaElement = await driver.findElement(By.xpath("/html/body/div[6]/div/div/div/div/div[2]/form/div[5]/img"));
+                        console.log("Solving captcha...");
+                        let captchaCode = await solveCaptcha(captchaElement);
+                        await driver.findElement(By.xpath("/html/body/div[6]/div/div/div/div/div[2]/form/div[6]/input")).sendKeys(captchaCode);
+                        await driver.findElement(By.xpath("/html/body/div[6]/div/div/div/div/div[2]/form/div[8]/button")).click();
+
+                        let currentUrl = await driver.getCurrentUrl();
+                        if (currentUrl === 'https://blsitalypakistan.com/account/account_details') {
                             login = true;
                             console.log("you are loggrd in.. reirecting you now");
                             await driver.get(ul);
                             } else {
                             await driver.navigate().refresh();
-                            }
                         }
                     }
-                
+                }
+
 
             }
-        }
         if (datePicked) {
             console.log("Date picked successfully!");
-            await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[8]/div/select/option[2]")).click();
+            const appointmentTypeLocator = By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[8]/div/select");
+            const appointmentTypeElement = await driver.wait(until.elementLocated(appointmentTypeLocator), 60000);
+            await appointmentTypeElement.click();
+            try {
+                await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[8]/div/select/option[2]")).click()
+            } catch (error) {
+                console.log(error)
+            }
+
             await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[9]/div[5]/input")).sendKeys(first_name);
             await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[9]/div[6]/input")).sendKeys(last_name);
             console.log("Solving recaptchav2");
-            let ur =  driver.getCurrentUrl;
-            let recaptchaResponse =await solveRecaptcha(ur);
+            let url = await driver.getCurrentUrl();
+            let recaptchaResponse = await solveRecaptcha(url);
             await driver.executeScript(`document.getElementById("g-recaptcha-response").innerHTML = "${recaptchaResponse}";`);
             console.log("V2solved");
             await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[9]/p/input")).click();
             await driver.findElement(By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[9]/div[11]/button")).click();
         }
-        
+
 
     } finally {
         console.log("End");
+        await driver.close()
     }
 
     res.send("Appointment booked successfully.");
 });
 const port = process.env.PORT ? process.env.PORT : 5000
 app.listen(port, () => {
-    console.log('Server started on http://localhost:'+port);
+    console.log('Server started on http://localhost:' + port);
 });
