@@ -138,8 +138,8 @@ app.post('/', async (req, res) => {
         switch (application_centre) {
             case 'Islamabad':
                 
-                await driver.findElement(By.xpath("/html/body/div[13]/div/div/div[2]/div/form/div[1]/select/option[7]")).click();
-                await driver.findElement( By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[2]/select/option[7]")).click();
+                await driver.findElement(By.xpath("/html/body/div[13]/div/div/div[2]/div/form/div[1]/select/option[2]")).click();
+                await driver.findElement( By.xpath("/html/body/div[11]/div/div/div[2]/div/form/div[2]/select/option[9]")).click();
                 break;
             case 'Lahore':
                 await driver.findElement(By.xpath("/html/body/div[13]/div/div/div[2]/div/form/div[1]/select/option[7]")).click();
@@ -166,7 +166,7 @@ app.post('/', async (req, res) => {
         console.log("Solving Captcha");
         let boom = true;
         let datePicked = false;
-        let ul = driver.getCurrentUrl();
+        let ul = await driver.getCurrentUrl();
         while (boom) {
             try {
                 // Solve captcha and attempt to pick a date
@@ -199,18 +199,19 @@ app.post('/', async (req, res) => {
                 console.log(`Failed due to an error:. Retrying...`);
                 driver.navigate().refresh();
                
-                    if(driver.getCurrentUrl==="https://blsitalypakistan.com/"){
-                        console.log("You are at homepage!");
+                    if(await driver.getCurrentUrl()==="https://blsitalypakistan.com/"){
+                        console.log("Login token expired.. Resolving this..");
                         refreshIfNeeded(driver);
                         let login = false;
                         while(!login){
-                            if(driver.getCurrentUrl==="https://blsitalypakistan.com/"){
-                                console.log("You are at homepage");
-                                driver.findElement(By.xpath , "/html/body/div[6]/a/img").click();
-                                driver.findElement(By.xpath, "/html/body/div[2]/div/div/div[3]/span[1]/a").click();
-                                refreshIfNeeded(driver);
+                           
+                                
+                            await driver.findElement(By.xpath("/html/body/div[6]/a/img")).click();
+                            await driver.findElement(By.xpath("/html/body/div[2]/div/div/div[3]/span[1]/a")).click();
+                            
+                            refreshIfNeeded(driver);
 
-                            }
+                            
                             await driver.findElement(By.xpath("//input[@placeholder='Enter Email']")).sendKeys(username);
                             await driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys(password);
 
@@ -223,6 +224,8 @@ app.post('/', async (req, res) => {
                             let currentUrl = await driver.getCurrentUrl();
                             if (currentUrl === 'https://blsitalypakistan.com/account/account_details') {
                             login = true;
+                            console.log("you are loggrd in.. reirecting you now");
+                            await driver.get(ul);
                             } else {
                             await driver.navigate().refresh();
                             }
