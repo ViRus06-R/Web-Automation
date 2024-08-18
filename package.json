@@ -5,12 +5,13 @@
   "main": "bls-javascript.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start":"node bls-javascript.js"
+    "start": "node bls-javascript.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.19.2",
+    "node-fetch": "^3.3.2",
     "nopecha": "^1.0.11",
     "selenium-webdriver": "^4.23.0"
   }
